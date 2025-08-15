@@ -16,7 +16,9 @@ class _ListRestaurantPageState extends State<ListRestaurantPage> {
   @override
   void initState() {
     super.initState();
-    context.read<RestaurantListProvider>().fetchRestaurantList();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      context.read<RestaurantListProvider>().fetchRestaurantList();
+    });
   }
 
   @override
@@ -37,13 +39,25 @@ class _ListRestaurantPageState extends State<ListRestaurantPage> {
                   return RestaurantCard(
                     restaurant: restaurant,
                     onTap: () {
-                      Navigator.pushNamed(context, '/detail');
+                      Navigator.pushNamed(
+                        context,
+                        '/detail',
+                        arguments: restaurant.id,
+                      );
                     },
                   );
                 },
               ),
-            RestaurantListErrorState(error: var message) => Center(
-              child: Text(message),
+            RestaurantListErrorState() => Center(
+              child: Text(
+                "😴 \n The server is taking a break.\nPlease try again later.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepOrangeAccent,
+                ),
+              ),
             ),
             _ => const SizedBox(),
           };

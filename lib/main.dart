@@ -42,7 +42,11 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const ListRestaurantPage(),
-        '/detail': (context) => const DetailRestaurantPage(),
+        '/detail': (context) {
+          return DetailRestaurantPage(
+            restaurantId: ModalRoute.of(context)?.settings.arguments as String,
+          );
+        },
       },
     );
   }
