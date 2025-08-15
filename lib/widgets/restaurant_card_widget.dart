@@ -28,11 +28,14 @@ class RestaurantCard extends StatelessWidget {
                 maxWidth: 120,
                 minWidth: 120,
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: Image.network(
-                  "https://restaurant-api.dicoding.dev/images/small/${restaurant.pictureId!}",
-                  fit: BoxFit.cover,
+              child: Hero(
+                tag: 'restaurant-image-${restaurant.id}',
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Image.network(
+                    "https://restaurant-api.dicoding.dev/images/small/${restaurant.pictureId!}",
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),

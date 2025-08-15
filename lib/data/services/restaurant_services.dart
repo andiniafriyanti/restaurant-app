@@ -18,7 +18,7 @@ class RestaurantServices {
     }
   }
 
-  Future<DetailRestaurantModel> getRestaurantDetail(int id) async {
+  Future<DetailRestaurantModel> getRestaurantDetail(String id) async {
     final response = await http.get(Uri.parse("$_baseUrl/detail/$id"));
 
     if (response.statusCode == 200) {
