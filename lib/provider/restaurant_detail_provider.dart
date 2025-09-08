@@ -19,7 +19,7 @@ class RestaurantDetailProvider extends ChangeNotifier {
 
       if (result.error ?? true) {
         _resultState = RestaurantDetailErrorState(
-          result.message ?? 'Terjadi kesalahan',
+          result.message ??  'Failed',
         );
       } else {
         _resultState = RestaurantDetailLoadedState(result.restaurant!);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/models/list_restaurant_model.dart';
 
+
 class RestaurantCard extends StatelessWidget {
   final Restaurant restaurant;
   final Function() onTap;
@@ -53,7 +54,7 @@ class RestaurantCard extends StatelessWidget {
                   const SizedBox.square(dimension: 6),
                   Row(
                     children: [
-                      const Icon(Icons.pin_drop),
+                      const Icon(Icons.location_on_outlined),
                       const SizedBox.square(dimension: 4),
                       Expanded(
                         child: Text(
@@ -68,7 +69,7 @@ class RestaurantCard extends StatelessWidget {
                   const SizedBox.square(dimension: 6),
                   Row(
                     children: [
-                      const Icon(Icons.favorite, color: Colors.pink),
+                      const Icon(Icons.star, color: Colors.amber,size: 20),
                       const SizedBox.square(dimension: 4),
                       Expanded(
                         child: Text(
