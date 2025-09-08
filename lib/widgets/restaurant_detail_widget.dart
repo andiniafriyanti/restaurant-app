@@ -68,6 +68,20 @@ class _RestaurantDetailState extends State<RestaurantDetail> {
             label: const Text("Add Review"),
           ),
           const SizedBox(height: 16),
+          Text(
+            restaurant.description ?? "",
+            style: const TextStyle(fontSize: 16),
+            maxLines: isExpanded ? null : 3,
+            overflow: isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                isExpanded = !isExpanded;
+              });
+            },
+            child: Text(isExpanded ? "See Less" : "See More"),
+          ),
           Card(
             elevation: 2,
             shape: RoundedRectangleBorder(
@@ -79,7 +93,7 @@ class _RestaurantDetailState extends State<RestaurantDetail> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    "Menu Makanan",
+                    "Food Menu",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
@@ -94,7 +108,7 @@ class _RestaurantDetailState extends State<RestaurantDetail> {
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    "Menu Minuman",
+                    "Drinks Menu",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
@@ -111,20 +125,6 @@ class _RestaurantDetailState extends State<RestaurantDetail> {
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            restaurant.description ?? "",
-            style: const TextStyle(fontSize: 16),
-            maxLines: isExpanded ? null : 3,
-            overflow: isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                isExpanded = !isExpanded;
-              });
-            },
-            child: Text(isExpanded ? "See Less" : "See More"),
-          ),
         ],
       ),
     );
