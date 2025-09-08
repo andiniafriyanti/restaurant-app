@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../provider/list_restaurant_provider.dart';
 import '../static/restaurant_list_result_state.dart';
+import '../static/restaurant_search_result_state.dart';
 import '../widgets/restaurant_card_widget.dart';
 
 class ListRestaurantPage extends StatefulWidget {
@@ -13,55 +14,104 @@ class ListRestaurantPage extends StatefulWidget {
 }
 
 class _ListRestaurantPageState extends State<ListRestaurantPage> {
+  final TextEditingController searchController = TextEditingController();
+  String lastQuery = '';
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<RestaurantListProvider>().fetchRestaurantList();
     });
+  }
+
+  void onSearch(String query) {
+    setState(() => lastQuery = query);
+    if (query.isEmpty) {
+      context.read<RestaurantListProvider>().fetchRestaurantList();
+    } else {
+      context.read<RestaurantListProvider>().searchRestaurant(query);
+    }
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  Widget buildRestaurantList(List restaurants) {
+    if (restaurants.isEmpty) {
+      return const Center(child: Text("No restaurants found."));
+    }
+    return ListView.builder(
+      itemCount: restaurants.length,
+      itemBuilder: (context, index) {
+        final restaurant = restaurants[index];
+        return RestaurantCard(
+          restaurant: restaurant,
+          onTap: () {
+            Navigator.pushNamed(context, '/detail', arguments: restaurant.id);
+          },
+        );
+      },
+    );
+  }
+
+  Widget buildSearchState(RestaurantListProvider provider) {
+    final state = provider.searchState;
+    if (state is RestaurantSearchLoadingState) {
+      return const Center(child: CircularProgressIndicator());
+    } else if (state is RestaurantSearchLoadedState) {
+      return buildRestaurantList(state.data);
+    } else if (state is RestaurantSearchErrorState) {
+      return Center(child: Text(state.error));
+    }
+    return const SizedBox();
+  }
+
+  Widget buildListState(RestaurantListProvider provider) {
+    final state = provider.resultState;
+    if (state is RestaurantListLoadingState) {
+      return const Center(child: CircularProgressIndicator());
+    } else if (state is RestaurantListLoadedState) {
+      return buildRestaurantList(state.data);
+    } else if (state is RestaurantListErrorState) {
+      return Center(child: Text(state.error));
+    }
+    return const SizedBox();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Restaurant List")),
-      body: Consumer<RestaurantListProvider>(
-        builder: (context, value, child) {
-          return switch (value.resultState) {
-            RestaurantListLoadingState() => const Center(
-              child: CircularProgressIndicator(),
-            ),
-            RestaurantListLoadedState(data: var restaurantList) =>
-              ListView.builder(
-                itemCount: restaurantList.length,
-                itemBuilder: (context, index) {
-                  final restaurant = restaurantList[index];
-                  return RestaurantCard(
-                    restaurant: restaurant,
-                    onTap: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/detail',
-                        arguments: restaurant.id,
-                      );
-                    },
-                  );
-                },
-              ),
-            RestaurantListErrorState() => Center(
-              child: Text(
-                "😴 \n The server is taking a break.\nPlease try again later.",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.deepOrangeAccent,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                hintText: "Search restaurants...",
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
+              onSubmitted: onSearch,
             ),
-            _ => const SizedBox(),
-          };
-        },
+          ),
+          Expanded(
+            child: Consumer<RestaurantListProvider>(
+              builder: (context, provider, child) {
+                return lastQuery.isNotEmpty
+                    ? buildSearchState(provider)
+                    : buildListState(provider);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

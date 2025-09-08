@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:restaurant_app/provider/list_restaurant_provider.dart';
 import 'package:restaurant_app/provider/restaurant_detail_provider.dart';
+import 'package:restaurant_app/provider/submit_review_provider.dart';
 import 'package:restaurant_app/screens/list_restaurant_page.dart';
 
 import 'data/services/restaurant_services.dart';
@@ -22,6 +23,11 @@ void main() {
           create:
               (context) =>
                   RestaurantDetailProvider(context.read<RestaurantServices>()),
+        ),
+        ChangeNotifierProvider(
+          create:
+              (context) =>
+                  ReviewSubmitProvider(context.read<RestaurantServices>()),
         ),
       ],
       child: const MyApp(),
