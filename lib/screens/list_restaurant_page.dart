@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../provider/list_restaurant_provider.dart';
+import '../provider/theme_provider.dart';
 import '../static/restaurant_list_result_state.dart';
 import '../static/restaurant_search_result_state.dart';
 import '../widgets/restaurant_card_widget.dart';
@@ -85,7 +86,35 @@ class _ListRestaurantPageState extends State<ListRestaurantPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Restaurant List")),
+      appBar: AppBar(
+        title: const Text("Restaurant List"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.favorite),
+            onPressed: () {
+              Navigator.pushNamed(context, '/favorite');
+            },
+          ),
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, _) {
+              return IconButton(
+                icon: Icon(
+                  themeProvider.isDark ? Icons.dark_mode : Icons.light_mode,
+                ),
+                onPressed: () {
+                  themeProvider.toggleTheme();
+                },
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.pushNamed(context, '/setting');
+            },
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Padding(
