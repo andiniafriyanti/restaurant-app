@@ -1,6 +1,5 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:restaurant_app/static/restaurant_search_result_state.dart';
-
 import '../data/models/list_restaurant_model.dart';
 import '../data/services/restaurant_services.dart';
 import '../static/restaurant_list_result_state.dart';
@@ -11,32 +10,43 @@ class RestaurantListProvider extends ChangeNotifier {
   RestaurantListProvider(this.restaurantServices);
 
   RestaurantListResultState _resultState = RestaurantListNoneState();
-
   RestaurantListResultState get resultState => _resultState;
 
   RestaurantSearchResultState _searchState = RestaurantSearchNoneState();
   RestaurantSearchResultState get searchState => _searchState;
 
+  String _lastQuery = '';
+  String get lastQuery => _lastQuery;
+
   Future<void> fetchRestaurantList() async {
     try {
       _resultState = RestaurantListLoadingState();
       notifyListeners();
+
       final result = await restaurantServices.getRestaurantList();
 
-      if (result.error!) {
-        _resultState = RestaurantListErrorState(result.message ?? '');
-        notifyListeners();
+      if (result.error ?? true) {
+        _resultState = RestaurantListErrorState(
+          result.message ?? 'Unknown error',
+        );
       } else {
-        _resultState = RestaurantListLoadedState(result.restaurants!);
-        notifyListeners();
+        _resultState = RestaurantListLoadedState(result.restaurants ?? []);
       }
-    } on Exception catch (e) {
+    } catch (e) {
       _resultState = RestaurantListErrorState(e.toString());
-      notifyListeners();
     }
+    notifyListeners();
   }
 
   Future<void> searchRestaurant(String query) async {
+    _lastQuery = query;
+    notifyListeners();
+
+    if (query.isEmpty) {
+      clearSearch();
+      return;
+    }
+
     try {
       _searchState = RestaurantSearchLoadingState();
       notifyListeners();
@@ -62,10 +72,16 @@ class RestaurantListProvider extends ChangeNotifier {
             }).toList();
         _searchState = RestaurantSearchLoadedState(restaurants);
       }
-      notifyListeners();
     } catch (e) {
       _searchState = RestaurantSearchErrorState(e.toString());
-      notifyListeners();
     }
+    notifyListeners();
+  }
+
+  void clearSearch() {
+    _lastQuery = '';
+    _searchState = RestaurantSearchNoneState();
+    notifyListeners();
+    fetchRestaurantList();
   }
 }

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:restaurant_app/widgets/review_dialog_widget.dart';
 import '../data/models/detail_restaurant_model.dart';
 import '../data/models/list_restaurant_model.dart';
+import '../provider/expand_description_provider.dart';
 import '../provider/favorite_icon_provider.dart';
 import '../provider/local_database_provider.dart';
 import '../provider/submit_review_provider.dart';
@@ -35,7 +36,6 @@ class _RestaurantDetailState extends State<RestaurantDetail> {
           await localDatabaseProvider.loadRestaurantValueById(
             widget.listRestaurant!.id!,
           );
-
           final value = localDatabaseProvider.checkItemFavorite(
             widget.listRestaurant!.id!,
           );
@@ -48,6 +48,7 @@ class _RestaurantDetailState extends State<RestaurantDetail> {
 
   @override
   Widget build(BuildContext context) {
+    final expandProvider = context.watch<ExpandDescriptionProvider>();
     final restaurant = widget.restaurant;
     return SingleChildScrollView(
       child: Column(
@@ -65,17 +66,6 @@ class _RestaurantDetailState extends State<RestaurantDetail> {
               ),
               IconButton(
                 onPressed: () async {
-                  // if (widget.listRestaurant == null) {
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     const SnackBar(
-                  //       content: Text(
-                  //         "Data restaurant tidak tersedia untuk favorite",
-                  //       ),
-                  //     ),
-                  //   );
-                  //   return;s
-                  // }
-
                   final localDatabaseProvider =
                       context.read<LocalDatabaseProvider>();
                   final favoriteIconProvider =
@@ -156,16 +146,17 @@ class _RestaurantDetailState extends State<RestaurantDetail> {
           Text(
             restaurant.description ?? "",
             style: const TextStyle(fontSize: 16),
-            maxLines: isExpanded ? null : 3,
-            overflow: isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+            maxLines: expandProvider.isExpanded ? null : 3,
+            overflow:
+                expandProvider.isExpanded
+                    ? TextOverflow.visible
+                    : TextOverflow.ellipsis,
           ),
           TextButton(
             onPressed: () {
-              setState(() {
-                isExpanded = !isExpanded;
-              });
+              context.read<ExpandDescriptionProvider>().toggle();
             },
-            child: Text(isExpanded ? "See Less" : "See More"),
+            child: Text(expandProvider.isExpanded ? "See Less" : "See More"),
           ),
           Card(
             elevation: 2,

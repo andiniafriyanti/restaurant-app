@@ -61,6 +61,15 @@ class MockRestaurantListProvider extends ChangeNotifier
   }
 
   @override
+  void clearSearch() {
+    searchState = RestaurantSearchNoneState();
+    notifyListeners();
+  }
+
+  @override
+  String get lastQuery => '';
+
+  @override
   RestaurantServices get restaurantServices => throw UnimplementedError();
 }
 
