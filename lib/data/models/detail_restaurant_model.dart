@@ -11,7 +11,7 @@ String detailRestaurantModelToJson(DetailRestaurantModel data) => json.encode(da
 class DetailRestaurantModel {
   final bool? error;
   final String? message;
-  final Restaurant? restaurant;
+  final DetailRestaurant? restaurant;
 
   DetailRestaurantModel({
     this.error,
@@ -22,7 +22,7 @@ class DetailRestaurantModel {
   factory DetailRestaurantModel.fromJson(Map<String, dynamic> json) => DetailRestaurantModel(
     error: json["error"],
     message: json["message"],
-    restaurant: json["restaurant"] == null ? null : Restaurant.fromJson(json["restaurant"]),
+    restaurant: json["restaurant"] == null ? null : DetailRestaurant.fromJson(json["restaurant"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -32,7 +32,7 @@ class DetailRestaurantModel {
   };
 }
 
-class Restaurant {
+class DetailRestaurant {
   final String? id;
   final String? name;
   final String? description;
@@ -44,7 +44,7 @@ class Restaurant {
   final double? rating;
   final List<CustomerReview>? customerReviews;
 
-  Restaurant({
+  DetailRestaurant({
     this.id,
     this.name,
     this.description,
@@ -57,7 +57,7 @@ class Restaurant {
     this.customerReviews,
   });
 
-  factory Restaurant.fromJson(Map<String, dynamic> json) => Restaurant(
+  factory DetailRestaurant.fromJson(Map<String, dynamic> json) => DetailRestaurant(
     id: json["id"],
     name: json["name"],
     description: json["description"],

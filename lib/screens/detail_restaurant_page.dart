@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:restaurant_app/provider/restaurant_detail_provider.dart';
+import '../provider/local_database_provider.dart';
 import '../static/restaurant_detail_result_state.dart';
 import '../widgets/restaurant_detail_widget.dart';
 
@@ -21,6 +22,7 @@ class _DetailRestaurantPageState extends State<DetailRestaurantPage> {
       context.read<RestaurantDetailProvider>().fetchRestaurantDetail(
         widget.restaurantId,
       );
+      context.read<LocalDatabaseProvider>().loadAllRestaurantValue();
     });
   }
 
@@ -51,7 +53,6 @@ class _DetailRestaurantPageState extends State<DetailRestaurantPage> {
 
           if (state is RestaurantDetailLoadedState) {
             final restaurant = state.data;
-
             return LayoutBuilder(
               builder: (context, constraints) {
                 if (constraints.maxWidth > 800) {

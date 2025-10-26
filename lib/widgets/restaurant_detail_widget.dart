@@ -2,11 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:restaurant_app/widgets/review_dialog_widget.dart';
 import '../data/models/detail_restaurant_model.dart';
+import '../data/models/list_restaurant_model.dart';
+import '../provider/favorite_icon_provider.dart';
+import '../provider/local_database_provider.dart';
 import '../provider/submit_review_provider.dart';
 
 class RestaurantDetail extends StatefulWidget {
-  final Restaurant restaurant;
-  const RestaurantDetail({super.key, required this.restaurant});
+  final DetailRestaurant restaurant;
+  final Restaurant? listRestaurant;
+  const RestaurantDetail({
+    super.key,
+    required this.restaurant,
+    this.listRestaurant,
+  });
 
   @override
   State<RestaurantDetail> createState() => _RestaurantDetailState();
@@ -14,6 +22,29 @@ class RestaurantDetail extends StatefulWidget {
 
 class _RestaurantDetailState extends State<RestaurantDetail> {
   bool isExpanded = false;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final localDatabaseProvider = context.read<LocalDatabaseProvider>();
+      final favoriteIconProvider = context.read<FavoriteIconProvider>();
+
+      Future.microtask(() async {
+        if (widget.listRestaurant != null &&
+            widget.listRestaurant!.id != null) {
+          await localDatabaseProvider.loadRestaurantValueById(
+            widget.listRestaurant!.id!,
+          );
+
+          final value = localDatabaseProvider.checkItemFavorite(
+            widget.listRestaurant!.id!,
+          );
+
+          favoriteIconProvider.isFavorite = value;
+        }
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,9 +53,64 @@ class _RestaurantDetailState extends State<RestaurantDetail> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            restaurant.name ?? "-",
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                restaurant.name ?? "-",
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              IconButton(
+                onPressed: () async {
+                  // if (widget.listRestaurant == null) {
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     const SnackBar(
+                  //       content: Text(
+                  //         "Data restaurant tidak tersedia untuk favorite",
+                  //       ),
+                  //     ),
+                  //   );
+                  //   return;s
+                  // }
+
+                  final localDatabaseProvider =
+                      context.read<LocalDatabaseProvider>();
+                  final favoriteIconProvider =
+                      context.read<FavoriteIconProvider>();
+                  final isFavorite = favoriteIconProvider.isFavorite;
+
+                  final restaurantData = Restaurant(
+                    id: restaurant.id,
+                    name: restaurant.name,
+                    description: restaurant.description,
+                    pictureId: restaurant.pictureId,
+                    city: restaurant.city,
+                    rating: restaurant.rating,
+                  );
+
+                  if (!isFavorite) {
+                    await localDatabaseProvider.saveRestaurantValue(
+                      restaurantData,
+                    );
+                  } else {
+                    await localDatabaseProvider.removeRestaurantValueById(
+                      restaurantData.id!,
+                    );
+                  }
+
+                  favoriteIconProvider.isFavorite = !isFavorite;
+                  await localDatabaseProvider.loadAllRestaurantValue();
+                },
+                icon: Icon(
+                  context.watch<FavoriteIconProvider>().isFavorite
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           Row(
@@ -59,7 +145,6 @@ class _RestaurantDetailState extends State<RestaurantDetail> {
                       },
                     ),
               );
-
               if (result == true) {
                 debugPrint("Review success add");
               }
@@ -116,9 +201,12 @@ class _RestaurantDetailState extends State<RestaurantDetail> {
                     spacing: 8,
                     runSpacing: 8,
                     children:
-                        restaurant.menus?.drinks?.map(
+                        restaurant.menus?.drinks
+                            ?.map(
                               (drink) => Chip(label: Text(drink.name ?? "")),
-                            ).toList() ?? [],
+                            )
+                            .toList() ??
+                        [],
                   ),
                 ],
               ),
