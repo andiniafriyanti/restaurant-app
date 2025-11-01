@@ -81,32 +81,19 @@ class _ListRestaurantPageState extends State<ListRestaurantPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.favorite),
-            onPressed: () {
-              Navigator.pushNamed(context, '/favorite');
-            },
+            onPressed: () => Navigator.pushNamed(context, '/favorite'),
           ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Consumer<ThemeProvider>(
-                builder: (context, themeProvider, _) {
-                  return IconButton(
-                    icon: Icon(
-                      themeProvider.isDark ? Icons.dark_mode : Icons.light_mode,
-                    ),
-                    onPressed: () {
-                      themeProvider.toggleTheme();
-                    },
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/setting');
-                },
-              ),
-            ],
+          IconButton(
+            icon: Icon(
+              context.watch<ThemeProvider>().isDark
+                  ? Icons.dark_mode
+                  : Icons.light_mode,
+            ),
+            onPressed: context.read<ThemeProvider>().toggleTheme,
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => Navigator.pushNamed(context, '/setting'),
           ),
         ],
       ),

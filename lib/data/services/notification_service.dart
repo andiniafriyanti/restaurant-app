@@ -6,7 +6,7 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
 
-class NotificationService {fix
+class NotificationService {
   static final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
 
@@ -62,7 +62,6 @@ class NotificationService {fix
       payload: 'daily_reminder',
     );
   }
-
 
   static Future<void> cancelAll() async {
     await _notifications.cancelAll();
