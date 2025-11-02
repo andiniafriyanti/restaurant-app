@@ -1,9 +1,8 @@
 import 'package:flutter/widgets.dart';
+import 'package:restaurant_app/data/models/list_restaurant_model.dart';
+import 'package:restaurant_app/data/services/restaurant_services.dart';
+import 'package:restaurant_app/static/restaurant_list_result_state.dart';
 import 'package:restaurant_app/static/restaurant_search_result_state.dart';
-
-import '../data/models/list_restaurant_model.dart';
-import '../data/services/restaurant_services.dart';
-import '../static/restaurant_list_result_state.dart';
 
 class RestaurantListProvider extends ChangeNotifier {
   final RestaurantServices restaurantServices;
@@ -15,6 +14,7 @@ class RestaurantListProvider extends ChangeNotifier {
   RestaurantListResultState get resultState => _resultState;
 
   RestaurantSearchResultState _searchState = RestaurantSearchNoneState();
+
   RestaurantSearchResultState get searchState => _searchState;
 
   Future<void> fetchRestaurantList() async {
@@ -30,8 +30,10 @@ class RestaurantListProvider extends ChangeNotifier {
         _resultState = RestaurantListLoadedState(result.restaurants!);
         notifyListeners();
       }
-    } on Exception catch (e) {
-      _resultState = RestaurantListErrorState(e.toString());
+    } on Exception {
+      _resultState = RestaurantListErrorState(
+        'Gagal memuat daftar restoran. Periksa koneksi internet Anda.',
+      );
       notifyListeners();
     }
   }
@@ -64,7 +66,9 @@ class RestaurantListProvider extends ChangeNotifier {
       }
       notifyListeners();
     } catch (e) {
-      _searchState = RestaurantSearchErrorState(e.toString());
+      _searchState = RestaurantSearchErrorState(
+        'Gagal mencari restoran. Periksa koneksi internet Anda.',
+      );
       notifyListeners();
     }
   }

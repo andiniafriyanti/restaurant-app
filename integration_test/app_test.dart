@@ -18,6 +18,5 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 8));
 
     expect(find.text('Detail Restaurant'), findsOneWidget);
-
   });
 }

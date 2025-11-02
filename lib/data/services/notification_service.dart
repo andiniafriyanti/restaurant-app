@@ -7,6 +7,7 @@ class NotificationService {
 
   static Future<void> init() async {
     tz.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
 
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const settings = InitializationSettings(android: android);
@@ -14,8 +15,17 @@ class NotificationService {
     await notifications.initialize(settings);
   }
 
+  static Future<void> requestPermissions() async {
+    final plugin =
+        notifications
+            .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin
+            >();
+    await plugin?.requestNotificationsPermission();
+    await plugin?.requestExactAlarmsPermission();
+  }
+
   static Future<void> showScheduledNotification() async {
-    tz.setLocalLocation(tz.getLocation('Asia/Jakarta'));
     final now = tz.TZDateTime.now(tz.local);
     var scheduled = tz.TZDateTime(tz.local, now.year, now.month, now.day, 11);
 
