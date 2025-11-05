@@ -14,8 +14,12 @@ class DailyReminderProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     _isEnabled = prefs.getBool('daily_reminder') ?? false;
     if (_isEnabled) {
-      NotificationService.showScheduledNotification();
+      await NotificationService.cancelAll();
+      await NotificationService.showScheduledNotification();
+    } else {
+      await NotificationService.cancelAll();
     }
+
     notifyListeners();
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:restaurant_app/provider/daily_reminder_provider.dart';
+import 'package:restaurant_app/provider/expand_description_provider.dart';
 import 'package:restaurant_app/provider/favorite_icon_provider.dart';
 import 'package:restaurant_app/provider/list_restaurant_provider.dart';
 import 'package:restaurant_app/provider/local_database_provider.dart';
@@ -48,6 +49,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => FavoriteIconProvider()),
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
         ChangeNotifierProvider(create: (context) => DailyReminderProvider()),
+        ChangeNotifierProvider(create: (context) => ExpandDescriptionProvider()),
       ],
       child: const MyApp(),
     ),
