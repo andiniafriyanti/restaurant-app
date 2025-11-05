@@ -49,7 +49,9 @@ void main() async {
         ChangeNotifierProvider(create: (context) => FavoriteIconProvider()),
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
         ChangeNotifierProvider(create: (context) => DailyReminderProvider()),
-        ChangeNotifierProvider(create: (context) => ExpandDescriptionProvider()),
+        ChangeNotifierProvider(
+          create: (context) => ExpandDescriptionProvider(),
+        ),
       ],
       child: const MyApp(),
     ),

@@ -1,12 +1,20 @@
 import 'package:flutter/widgets.dart';
 
 class FavoriteIconProvider extends ChangeNotifier {
-  bool _isFavorite = false;
+  final Map<String, bool> _favorites = {};
 
-  bool get isFavorite => _isFavorite;
+  bool isFavorite(String restaurantId) {
+    return _favorites[restaurantId] ?? false;
+  }
 
-  set isFavorite(bool value) {
-    _isFavorite = value;
+  void toggleFavorite(String restaurantId) {
+    _favorites[restaurantId] = !isFavorite(restaurantId);
     notifyListeners();
+  }
+
+  void setFavorite(String restaurantId, bool isFavorite) {
+    if (_favorites[restaurantId] == isFavorite) return;
+    _favorites[restaurantId] = isFavorite;
+    Future.microtask(() => notifyListeners());
   }
 }

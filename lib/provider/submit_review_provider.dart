@@ -1,9 +1,13 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:restaurant_app/data/services/restaurant_services.dart';
 import 'package:restaurant_app/static/restaurant_review_result_state.dart';
 
 class ReviewSubmitProvider extends ChangeNotifier {
   final RestaurantServices restaurantServices;
+
+  final nameController = TextEditingController();
+  final reviewController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
 
   ReviewSubmitProvider(this.restaurantServices);
 
@@ -11,7 +15,21 @@ class ReviewSubmitProvider extends ChangeNotifier {
 
   ReviewResultState get submitState => _submitState;
 
-  Future<void> submitReview(String id, String name, String review) async {
+  @override
+  void dispose() {
+    super.dispose();
+    nameController.dispose();
+    reviewController.dispose();
+  }
+
+  Future<void> submitReview(String id) async {
+    if (formKey.currentState?.validate() != true) {
+      return;
+    }
+
+    final name = nameController.text.trim();
+    final review = reviewController.text.trim();
+
     _submitState = ReviewLoadingState();
     notifyListeners();
 
@@ -42,6 +60,10 @@ class ReviewSubmitProvider extends ChangeNotifier {
 
   void resetState() {
     _submitState = ReviewNoneState();
-    notifyListeners();
+  }
+
+  void prepareNewReview() {
+    nameController.clear();
+    reviewController.clear();
   }
 }

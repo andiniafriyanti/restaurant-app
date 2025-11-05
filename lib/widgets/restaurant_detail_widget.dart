@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:restaurant_app/data/models/detail_restaurant_model.dart';
+import 'package:restaurant_app/data/models/list_restaurant_model.dart';
+import 'package:restaurant_app/provider/expand_description_provider.dart';
+import 'package:restaurant_app/provider/favorite_icon_provider.dart';
+import 'package:restaurant_app/provider/local_database_provider.dart';
+import 'package:restaurant_app/provider/submit_review_provider.dart';
 import 'package:restaurant_app/widgets/review_dialog_widget.dart';
-import '../data/models/detail_restaurant_model.dart';
-import '../data/models/list_restaurant_model.dart';
-import '../provider/expand_description_provider.dart';
-import '../provider/favorite_icon_provider.dart';
-import '../provider/local_database_provider.dart';
-import '../provider/submit_review_provider.dart';
 
-class RestaurantDetail extends StatefulWidget {
+class RestaurantDetail extends StatelessWidget {
   final DetailRestaurant restaurant;
   final Restaurant? listRestaurant;
   const RestaurantDetail({
@@ -18,38 +18,16 @@ class RestaurantDetail extends StatefulWidget {
   });
 
   @override
-  State<RestaurantDetail> createState() => _RestaurantDetailState();
-}
-
-class _RestaurantDetailState extends State<RestaurantDetail> {
-  bool isExpanded = false;
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final localDatabaseProvider = context.read<LocalDatabaseProvider>();
-      final favoriteIconProvider = context.read<FavoriteIconProvider>();
-
-      Future.microtask(() async {
-        if (widget.listRestaurant != null &&
-            widget.listRestaurant!.id != null) {
-          await localDatabaseProvider.loadRestaurantValueById(
-            widget.listRestaurant!.id!,
-          );
-          final value = localDatabaseProvider.checkItemFavorite(
-            widget.listRestaurant!.id!,
-          );
-
-          favoriteIconProvider.isFavorite = value;
-        }
-      });
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final localDatabaseProvider = context.read<LocalDatabaseProvider>();
+    final favoriteIconProvider = context.read<FavoriteIconProvider>();
+    final restaurantId = restaurant.id;
+
+    final isFavorite = localDatabaseProvider.checkItemFavorite(restaurantId!);
+    favoriteIconProvider.setFavorite(restaurantId, isFavorite);
+
     final expandProvider = context.watch<ExpandDescriptionProvider>();
-    final restaurant = widget.restaurant;
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,21 +35,18 @@ class _RestaurantDetailState extends State<RestaurantDetail> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                restaurant.name ?? "-",
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+              Flexible(
+                child: Text(
+                  restaurant.name ?? "-",
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               IconButton(
                 onPressed: () async {
-                  final localDatabaseProvider =
-                      context.read<LocalDatabaseProvider>();
-                  final favoriteIconProvider =
-                      context.read<FavoriteIconProvider>();
-                  final isFavorite = favoriteIconProvider.isFavorite;
-
                   final restaurantData = Restaurant(
                     id: restaurant.id,
                     name: restaurant.name,
@@ -91,11 +66,11 @@ class _RestaurantDetailState extends State<RestaurantDetail> {
                     );
                   }
 
-                  favoriteIconProvider.isFavorite = !isFavorite;
+                  favoriteIconProvider.toggleFavorite(restaurantId);
                   await localDatabaseProvider.loadAllRestaurantValue();
                 },
                 icon: Icon(
-                  context.watch<FavoriteIconProvider>().isFavorite
+                  context.watch<FavoriteIconProvider>().isFavorite(restaurantId)
                       ? Icons.favorite
                       : Icons.favorite_border,
                 ),
@@ -121,18 +96,12 @@ class _RestaurantDetailState extends State<RestaurantDetail> {
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: () async {
+              context.read<ReviewSubmitProvider>().prepareNewReview();
               final result = await showDialog<bool>(
                 context: context,
                 builder:
                     (context) => ReviewFormDialog(
                       restaurantId: restaurant.id.toString(),
-                      onSubmit: (name, review) {
-                        context.read<ReviewSubmitProvider>().submitReview(
-                          restaurant.id.toString(),
-                          name,
-                          review,
-                        );
-                      },
                     ),
               );
               if (result == true) {

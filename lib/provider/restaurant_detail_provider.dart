@@ -11,9 +11,17 @@ class RestaurantDetailProvider extends ChangeNotifier {
 
   RestaurantDetailResultState get resultState => _resultState;
 
+  String? _lastLoadedId;
+
   Future<void> fetchRestaurantDetail(String id) async {
+    if (_lastLoadedId == id && _resultState is RestaurantDetailLoadedState) {
+      return;
+    }
+
+    _lastLoadedId = id;
     _resultState = RestaurantDetailLoadingState();
-    notifyListeners();
+
+    Future.microtask(() => notifyListeners());
 
     try {
       final result = await restaurantServices.getRestaurantDetail(id);

@@ -1,57 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../provider/submit_review_provider.dart';
-import '../static/restaurant_review_result_state.dart';
+import 'package:restaurant_app/provider/submit_review_provider.dart';
+import 'package:restaurant_app/static/restaurant_review_result_state.dart';
 
-class ReviewFormDialog extends StatefulWidget {
+class ReviewFormDialog extends StatelessWidget {
   final String restaurantId;
-  final void Function(String name, String review) onSubmit;
 
-  const ReviewFormDialog({
-    super.key,
-    required this.onSubmit,
-    required this.restaurantId,
-  });
-
-  @override
-  State<ReviewFormDialog> createState() => _ReviewFormDialogState();
-}
-
-class _ReviewFormDialogState extends State<ReviewFormDialog> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController reviewController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
-
-  @override
-  void dispose() {
-    nameController.dispose();
-    reviewController.dispose();
-    super.dispose();
-  }
+  const ReviewFormDialog({super.key, required this.restaurantId});
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.read<ReviewSubmitProvider>();
+
     return Consumer<ReviewSubmitProvider>(
-      builder: (context, provider, _) {
-        final state = provider.submitState;
+      builder: (context, consumer, _) {
+        final state = consumer.submitState;
+
         if (state is ReviewLoadedState) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              final messenger = ScaffoldMessenger.of(context);
-              Navigator.pop(context, true);
-              messenger.showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'Congrats, Submit review success..',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  backgroundColor: Colors.green,
-                  behavior: SnackBarBehavior.floating,
-                  duration: const Duration(seconds: 2),
+            final messenger = ScaffoldMessenger.of(context);
+            Navigator.pop(context, true);
+            messenger.showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Congrats, Submit review success..',
+                  style: TextStyle(color: Colors.white),
                 ),
-              );
-              provider.resetState();
-            }
+                backgroundColor: Colors.green,
+                behavior: SnackBarBehavior.floating,
+                duration: Duration(seconds: 2),
+              ),
+            );
+            consumer.resetState();
           });
         }
 
@@ -61,12 +41,12 @@ class _ReviewFormDialogState extends State<ReviewFormDialog> {
             width: MediaQuery.of(context).size.width * 0.8,
             child: SingleChildScrollView(
               child: Form(
-                key: formKey,
+                key: provider.formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextFormField(
-                      controller: nameController,
+                      controller: provider.nameController,
                       decoration: const InputDecoration(
                         labelText: 'Name',
                         border: OutlineInputBorder(),
@@ -79,7 +59,7 @@ class _ReviewFormDialogState extends State<ReviewFormDialog> {
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
-                      controller: reviewController,
+                      controller: provider.reviewController,
                       decoration: const InputDecoration(
                         labelText: 'Review',
                         border: OutlineInputBorder(),
@@ -105,16 +85,7 @@ class _ReviewFormDialogState extends State<ReviewFormDialog> {
               onPressed:
                   state is ReviewLoadingState
                       ? null
-                      : () {
-                        if (formKey.currentState!.validate()) {
-                          final name = nameController.text.trim();
-                          final review = reviewController.text.trim();
-                          debugPrint(
-                            "Send clicked: name=$name, review=$review",
-                          );
-                          widget.onSubmit(name, review);
-                        }
-                      },
+                      : () => provider.submitReview(restaurantId),
               child:
                   state is ReviewLoadingState
                       ? const SizedBox(

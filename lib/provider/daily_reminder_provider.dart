@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant_app/data/services/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../data/services/notification_service.dart';
 
 class DailyReminderProvider extends ChangeNotifier {
   bool _isEnabled = false;
@@ -13,11 +13,10 @@ class DailyReminderProvider extends ChangeNotifier {
   Future<void> _loadPreference() async {
     final prefs = await SharedPreferences.getInstance();
     _isEnabled = prefs.getBool('daily_reminder') ?? false;
+
+    await NotificationService.cancelAll();
     if (_isEnabled) {
-      await NotificationService.cancelAll();
       await NotificationService.showScheduledNotification();
-    } else {
-      await NotificationService.cancelAll();
     }
 
     notifyListeners();
@@ -27,12 +26,14 @@ class DailyReminderProvider extends ChangeNotifier {
     _isEnabled = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('daily_reminder', value);
+
     if (value) {
       await NotificationService.requestPermissions();
-      NotificationService.showScheduledNotification();
+      await NotificationService.showScheduledNotification();
     } else {
-      NotificationService.cancelAll();
+      await NotificationService.cancelAll();
     }
+
     notifyListeners();
   }
 }

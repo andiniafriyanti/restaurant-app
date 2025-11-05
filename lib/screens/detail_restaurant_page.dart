@@ -1,33 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:restaurant_app/provider/local_database_provider.dart';
 import 'package:restaurant_app/provider/restaurant_detail_provider.dart';
-import '../provider/local_database_provider.dart';
-import '../static/restaurant_detail_result_state.dart';
-import '../widgets/restaurant_detail_widget.dart';
+import 'package:restaurant_app/static/restaurant_detail_result_state.dart';
+import 'package:restaurant_app/widgets/restaurant_detail_widget.dart';
 
-class DetailRestaurantPage extends StatefulWidget {
+class DetailRestaurantPage extends StatelessWidget {
   final String restaurantId;
 
   const DetailRestaurantPage({super.key, required this.restaurantId});
 
   @override
-  State<DetailRestaurantPage> createState() => _DetailRestaurantPageState();
-}
-
-class _DetailRestaurantPageState extends State<DetailRestaurantPage> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<RestaurantDetailProvider>().fetchRestaurantDetail(
-        widget.restaurantId,
-      );
-      context.read<LocalDatabaseProvider>().loadAllRestaurantValue();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    context.read<RestaurantDetailProvider>().fetchRestaurantDetail(
+      restaurantId,
+    );
+    context.read<LocalDatabaseProvider>().loadAllRestaurantValue();
+
     return Scaffold(
       appBar: AppBar(title: const Text('Detail Restaurant'), centerTitle: true),
       body: Consumer<RestaurantDetailProvider>(
